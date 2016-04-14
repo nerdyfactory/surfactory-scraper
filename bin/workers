@@ -1,0 +1,104 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+require('app-module-path').addPath(__dirname + '/../');
+var workers = require('workers');
+var models  = require('models');
+var kue     = require('kue');
+var queue   = kue.createQueue();
+var cluster = require('cluster');
+var config  = require('lib/config');
+var _       = require('underscore');
+var fs      = require('fs');
+var express = require('express');
+var ui      = require('kue-ui');
+var app     = express();
+
+
+/* Master Process */
+if (cluster.isMaster) {
+
+  process.on('uncaughtException', onError);
+
+  for (var i = 0; i < config.kue.concurrency; i++) {
+    cluster.fork();
+  }
+  ui.setup({
+    apiURL: '/kue/api', // IMPORTANT: specify the api url
+    baseURL: '/kue', // IMPORTANT: specify the base url
+    updateInterval: 5000 // Optional: Fetches new data every 5000 ms
+  });
+  // Mount kue JSON api
+  app.use('/kue/api', kue.app);
+  // Mount UI
+  app.use('/kue', ui.app);
+  app.listen(config.express.kue);
+
+
+  process.on('SIGTERM', function() {
+    for (var id in cluster.workers) {
+      cluster.workers[id].kill();
+    }
+    process.exit(0);
+  });
+
+  cluster.on('exit', function(deadWorker, code, signal) {
+    // Restart the worker
+    var worker = cluster.fork();
+
+    // Note the process IDs
+    var newPID = worker.process.pid;
+    var oldPID = deadWorker.process.pid;
+
+    // Log the event
+    console.log('worker '+oldPID+' died.');
+    console.log('worker '+newPID+' born.');
+  });
+
+/* Child Process */
+} else {
+  // loading model first
+  models.sequelize.sync().then(function () {
+    _.each(workers, function (worker, name) {
+      console.log(name + ": start to process");
+      queue.process(name, worker);
+    });
+
+    // for graceful shutdown
+    process.on('SIGTERM', function(sig) {
+      queue.shutdown(5000, function(err) {
+        console.log('Kue shutdown: ', err || '');
+        process.exit(0);
+      });
+    });
+  });
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+function onError(error) {
+  console.log(error);
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(config.express.kue + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(config.express.kue + ' is already in use, retry!');
+      fs.unlinkSync(config.express.kue);
+      app.listen(config.express.kue);
+      fs.chmod(config.express.kue, '0664');
+      break;
+    default:
+      throw error;
+  }
+}
