@@ -1,0 +1,30 @@
+{
+  "name": "surfactory-scraper",
+  "description": "the scraper gathering the product data for surfactory",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/scraper"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nerdyfactory/surfactory-scraper.git"
+  },
+  "author": "JongHun Yu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nerdyfactory/surfactory-scraper/issues"
+  },
+  "homepage": "https://github.com/nerdyfactory/surfactory-scraper#readme",
+  "dependencies": {
+    "bluebird": "^3.3.5",
+    "body-parser": "~1.13.2",
+    "cookie-parser": "~1.3.5",
+    "debug": "~2.2.0",
+    "express": "~4.13.1",
+    "lodash": "^4.11.1",
+    "morgan": "~1.6.1",
+    "queue": "^3.1.0",
+    "scraperjs": "^1.2.0"
+  }
+}
