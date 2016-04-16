@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/apiServer"
+    "start": "nodemon ./bin/apiServer"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,8 @@
     "lodash": "^4.11.1",
     "morgan": "~1.6.1",
     "scraperjs": "^1.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.9.1"
   }
 }

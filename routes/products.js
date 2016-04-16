@@ -6,7 +6,7 @@ var tactics   = require('../includes/scrape').tactics
 products.get('/:url', function(req, res, next) {
   console.log(req.params)
   tactics.scrape(req.params.url, (data) => {
-    console.log(data)
+    console.log("done")
     res.json({})
   })
 })
