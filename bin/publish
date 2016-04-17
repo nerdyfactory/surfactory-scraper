@@ -4,10 +4,9 @@
  * Module dependencies.
  */
 
-var debug = require('debug')('surfactory-scraper:publish');
-var list  = require('../data/tacticsCategory.json')
-var _     = require('lodash')
+var debug   = require('debug')('surfactory-scraper:publish');
+var list    = require('../data/tacticsCategory.json')
+var publish = require('../includes/publish')
 
-_.each(list, (item) => {
-  console.log(item)
-})
+publish.tactics(list)
+.then(() => process.exit(0))

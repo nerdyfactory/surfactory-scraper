@@ -3,7 +3,7 @@ var _         = require('lodash')
 var Promise   = require('bluebird')
 
 
-var scrape = function (url) {
+function tactics(url) {
   return new Promise((resolve, reject) => {
     scraperjs.StaticScraper.create(url)
     .scrape(($) => {
@@ -15,6 +15,7 @@ var scrape = function (url) {
       })
       result = /app\.product\.init([^;]+)/.exec(initScript)
       str = result[1].replace(/\' style=[^\']+\'\,/g, "").replace(/\(/, "[").replace(/\)$/, "]").replace(/\'/g, "\"")
+      console.log(str)
       json = JSON.parse(str)
 
       productId = json[0]
@@ -64,16 +65,12 @@ var scrape = function (url) {
       }
       console.log(JSON.stringify(product))
       return product
-    }).then((product) => {
-      resolve(product)
-    }).catch((error) => {
-      reject(error)
+    }).then((product) => resolve(product))
+    .catch((error) => {
+      console.log("scraping failed:" + url)
+      return reject(error)
     })
   })
-}
-
-var tactics = {
-  scrape: scrape
 }
 
 module.exports = tactics
