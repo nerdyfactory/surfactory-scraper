@@ -5,9 +5,8 @@ var tactics   = require('../includes/scrape').tactics
 /* GET home page. */
 products.get('/:url', function(req, res, next) {
   console.log(req.params)
-  tactics.scrape(req.params.url, (data) => {
-    res.json(data)
-  })
+  tactics.scrape(req.params.url)
+  .then((data) => res.json(data))
 })
 
 module.exports = products
