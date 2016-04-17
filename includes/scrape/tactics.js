@@ -1,5 +1,4 @@
 var scraperjs = require('scraperjs')
-var Promise   = require('bluebird')
 var _         = require('lodash')
 
 
@@ -46,6 +45,11 @@ var scrape = function (url, callback) {
       attributes[attrName] = attrValues
     })
 
+    //category
+    category = $('.breadcrumbs a').not('.breadcrumb-x').map((i, el) => {
+      return $(el).text()
+    })
+
     product = {
       id: productId,
       url: url,
@@ -53,7 +57,8 @@ var scrape = function (url, callback) {
       brand: $('.product-h1-brand').text(),
       description: $('.product-features-description').text(),
       attributes: attributes,
-      variants: variants
+      variants: variants,
+      category: [category[0], category[1], category[2]]
     }
     console.log(JSON.stringify(product))
     return product
