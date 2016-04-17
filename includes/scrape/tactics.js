@@ -14,8 +14,12 @@ function tactics(url) {
         }
       })
       result = /app\.product\.init([^;]+)/.exec(initScript)
-      str = result[1].replace(/\' style=[^\']+\'\,/g, "").replace(/\(/, "[").replace(/\)$/, "]").replace(/\'/g, "\"")
-      console.log(str)
+      str = result[1].replace(/^\((.*)\)$/, "[$1]") // make json array
+      str = str.replace(/\\?"/g, "\\\"") // replace " to \"
+      str = str.replace(/\'\'/g, "\"\"") // replace '' to ""
+      str = str.replace(/([^\\])\'/g, "$1\"") // replace all ' except \' to "
+      str = str.replace(/\\'/g, "\'") // replace \' to '
+      str = str.replace(/" style="[^"]+""/g, "\"\"") // remove css style text
       json = JSON.parse(str)
 
       productId = json[0]
